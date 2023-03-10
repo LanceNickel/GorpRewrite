@@ -4,8 +4,6 @@ import sys
 import globalvars as v
 import config
 
-print('test.py:', v.e, v.o)
-
 
 
 
@@ -14,26 +12,26 @@ print('test.py:', v.e, v.o)
 
 #### SERVER EXISTS
 
-def serverExists(serverName, guardMode = 2, callingName = 'checks.py', v = 0):
+def server_exists(server_name, guard_mode = 2, calling_name = __name__):
     ## Get and test path
 
-    homedir = config.getConfigItem('homedir')
-    path = homedir + '/servers/' + serverName
+    homedir = config.get_config_item('homedir')
+    path = f'{homedir}/servers/{server_name}'
     p = Path(path)
     exists = p.exists()
 
     ## If guard == 0, exit on false
 
-    if guardMode == 0:
+    if guard_mode == 0:
         if not exists:
-            if v < 2: print(callingName + ': Server not found. Exit (30).')
+            if v.e: print(f'{calling_name}.py: Server not found. Exit (30).')
             sys.exit(30)
 
     ## If guard == 1, exit on true
 
-    elif guardMode == 1:
+    elif guard_mode == 1:
         if exists:
-            if v < 2: print(callingName + ': Server already exists. Exit (31).')
+            if v.e: print(f'{calling_name}.py: Server already exists. Exit (31).')
             sys.exit(31)
     
     ## If guard not set, return boolean
@@ -49,26 +47,26 @@ def serverExists(serverName, guardMode = 2, callingName = 'checks.py', v = 0):
 
 #### WORLD EXISTS
 
-def worldExists(serverName, worldName, guardMode = 2, callingName = 'checks.py', v = 0):
+def world_exists(server_name, world_name, guard_mode = 2, calling_name = __name__):
     ## Get and test path
     
-    homedir = config.getConfigItem('homedir')
-    path = homedir + '/servers/' + serverName + '/' + worldName
+    homedir = config.get_config_item('homedir')
+    path = f'{homedir}/servers/{server_name}/{world_name}'
     p = Path(path)
     exists = p.exists()
 
     ## If guard == 0, exit on false
 
-    if guardMode == 0:
+    if guard_mode == 0:
         if not exists:
-            if v < 2: print(callingName + ': World not found. Exit (40).')
+            if v.e: print(f'{calling_name}.py: World not found. Exit (40).')
             sys.exit(40)
 
     ## If guard == 1, exit if true
 
-    elif guardMode == 1:
+    elif guard_mode == 1:
         if exists:
-            if v < 2: print(callingName + ': World already exists. Exit (41).')
+            if v.e: print(f'{calling_name}.py: World already exists. Exit (41).')
             sys.exit(41)
     
     ## If guard nt set, return boolean
@@ -84,10 +82,10 @@ def worldExists(serverName, worldName, guardMode = 2, callingName = 'checks.py',
 
 #### SERVER RUNNING
 
-def serverRunning(serverName, guardMode = 2, callingName = 'checks.py', v = 0):
+def server_running(server_name, guard_mode = 2, calling_name = __name__):
     ## Get and store server running status
 
-    check = subprocess.run(['./screencheck.sh', serverName], stdout=subprocess.PIPE)
+    check = subprocess.run(['./screencheck.sh', server_name], stdout=subprocess.PIPE)
     check = check.stdout.decode('utf-8').strip()
 
     ## Test check output & set accordingly
@@ -99,19 +97,42 @@ def serverRunning(serverName, guardMode = 2, callingName = 'checks.py', v = 0):
 
     ## If guard == 0, exit on false
 
-    if guardMode == 0:
+    if guard_mode == 0:
         if not running:
-            if v < 2: print(callingName + ': Server must be running. Exit (35).')
+            if v.e: print(f'{calling_name}.py: Server must be running. Exit (35).')
             sys.exit(35)
     
     ## If guard == 1, exit on true
 
-    elif guardMode == 1:
+    elif guard_mode == 1:
         if running:
-            if v < 2: print(callingName + ': Server cannot be running. Exit (34).')
+            if v.e: print(f'{calling_name}.py: Server cannot be running. Exit (34).')
             sys.exit(34)
 
     ## If guard not set, return boolean
 
     else:
         return running
+
+
+
+
+
+
+
+#### SHA256 SUM OF FILE
+
+def sha256_sum_file(path):
+    import hashlib
+
+    hash = hashlib.sha256()
+
+    file = path
+
+    try:
+        with open(file, 'rb') as f:
+            for segment in iter(lambda: f.read(4096), b""):
+                hash.update(segment)
+            return hash.hexdigest()
+    except FileNotFoundError:
+        return 'dne'

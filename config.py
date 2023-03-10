@@ -3,7 +3,7 @@ import subprocess
 import sys
 import globalvars as v
 
-print('config.py:', v.e, v.o)
+
 
 config = configparser.ConfigParser()
 config.sections()
@@ -11,7 +11,7 @@ config.read('config.conf')
 
 
 
-def getConfigItem(key):
+def get_config_item(key):
     try:
         return config['CONFIG'][key]
     except:
@@ -20,8 +20,9 @@ def getConfigItem(key):
 
 
 
-def getLevelName(serverName):
-    path = getConfigItem('homedir') + '/servers/' + serverName + '/server.properties'
+def get_level_name(serverName):
+    homedir = get_config_item('homedir')
+    path = f'{homedir}/servers/{serverName}/server.properties'
 
     try:
         with open(path) as f:
@@ -35,10 +36,10 @@ def getLevelName(serverName):
 
 
 
-def getLinesInProperties(serverName):
-    path = getConfigItem('homedir') + '/servers/' + serverName + '/server.properties'
+def get_lines_in_properties(serverName):
+    homedir = get_config_item('homedir')
+    path = f'{homedir}/servers/{serverName}/server.properties'
 
-    
     cat = subprocess.Popen(('cat', path), stdout=subprocess.PIPE)
     wc = subprocess.run(('wc', '-l'), stdin=cat.stdout, stdout=subprocess.PIPE)
     cat.wait()

@@ -6,8 +6,6 @@ import globalvars as v
 import config
 import test
 
-print('mcstart.py:', v.e, v.o)
-
 
 
 class Start:
@@ -18,7 +16,7 @@ class Start:
         self.server = startServer
         self.y = ySet
 
-        self.getConfigItems()
+        self.get_config_items()
 
 
 
@@ -30,20 +28,20 @@ class Start:
 
     ## Get Config
 
-    def getConfigItems(self):
-        self.homedir = config.getConfigItem('homedir')
-        self.levelName = config.getLevelName(self.server)
-        self.doChecks()
+    def get_config_items(self):
+        self.homedir = config.get_config_item('homedir')
+        self.levelName = config.get_level_name(self.server)
+        self.checks()
 
 
 
     ## Guards
     
-    def doChecks(self):
-        test.serverExists(self.server, 0, 'mcstart.py')
-        test.serverRunning(self.server, 1, 'mcstart.py')
+    def checks(self):
+        test.server_exists(self.server, 0, __name__)
+        test.server_running(self.server, 1, __name__)
 
-        self.firstTime()
+        self.check_first_time()
     
     
     
@@ -55,8 +53,8 @@ class Start:
 
     ## Detect if this is first run
     
-    def firstTime(self):
-        if config.getLinesInProperties(self.server) <= '10':
+    def check_first_time(self):
+        if config.get_lines_in_properties(self.server) <= '10':
             self.startServer()
         else:
             self.promptGenerate()
@@ -66,8 +64,8 @@ class Start:
     ## Prompt user to re-generate world if not first run
 
     def promptGenerate(self):
-        if not test.worldExists(self.server, self.levelName):
-            response = input("Active world (" + self.levelName + ") doesn\'t exist. Generate new world? [y/n] ") # type: ignore
+        if not test.world_exists(self.server, self.levelName):
+            response = input(f"Active world ({self.levelName}) doesn't exist. Generate new world? [y/n] ") # type: ignore
             response = response.lower()
 
             if response != 'y':
@@ -88,25 +86,54 @@ class Start:
         if v.o: print('Starting server...')
 
 
-        # Establish paths & cwd
+        ## Establish paths and cwd
 
-        self.pathToRun = self.homedir + '/servers/' + self.server + '/run.sh'
-        self.newDir = self.homedir + '/servers/' + self.server + '/'
-        os.chdir(self.newDir)
+        path_to_run = f'{self.homedir}/servers/{self.server}/run.sh'
+        new_dir = f'{self.homedir}/servers/{self.server}/'
+        path_to_log = f'{self.homedir}/servers/{self.server}/logs/latest.log'
+        os.chdir(new_dir)
 
-        # Run Screen
 
-        self.result = subprocess.run(['screen', '-d', '-m', '-S', self.server, self.pathToRun, 'pleasedontdothis'], stdout=subprocess.PIPE)
 
-        # Give 'er a second
+        ## Get SHA256 of current log file
 
-        time.sleep(5)
+        original_sum = test.sha256_sum_file(path_to_log)
 
-        # Keep reading the log file until "done!"
-
-        path = self.homedir + '/servers/' + self.server + '/logs/latest.log'
-        file = open(path, 'r')
         
+        
+        ## Run Screen
+
+        self.result = subprocess.run(['screen', '-d', '-m', '-S', self.server, path_to_run, 'pleasedontdothis'], stdout=subprocess.PIPE)
+
+        
+        
+        ## Wait for new log file to be created
+
+        i=0
+
+        while original_sum == test.sha256_sum_file(path_to_log):
+            i = i+0.5
+            if (i >= 10): # 10 seconds at least
+                if v.e: print('mcstart.py: Startup failure. Log was not created before timeout. Exit (36).')
+                sys.exit(36)
+            
+            time.sleep(0.5)
+        
+        
+        
+        ## Try to open the new log file
+
+        try:
+            file = open(path_to_log, 'r')
+        
+        except FileNotFoundError:
+            if v.e: print('mcstart.py: Unable to locate log file to monitor. Server is likely running but is in an unknown state. Exit (36).')
+            sys.exit(36)
+            
+        
+
+        ## Follow the file until match
+
         i=0
 
         while True:
@@ -125,5 +152,9 @@ class Start:
                 if v.o: print('Timeout reached! Use "gorp -t <server>" to see the latest log to investigate further.')
                 if v.e: print('mcstart.py: Startup failure. Log did not indicate "done!" before timeout. Exit (36).')
                 sys.exit(36)
+        
+
+
+        ## We're done!
         
         if v.o: print('Server started!')
