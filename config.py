@@ -1,6 +1,9 @@
 import configparser
 import subprocess
 import sys
+import globalvars as v
+
+print('config.py:', v.e, v.o)
 
 config = configparser.ConfigParser()
 config.sections()

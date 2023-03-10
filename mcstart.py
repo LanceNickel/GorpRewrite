@@ -2,78 +2,108 @@ import sys
 import time
 import subprocess
 import os
+import globalvars as v
 import config
-import checks as check
+import test
+
+print('mcstart.py:', v.e, v.o)
 
 
 
 class Start:
 
+    #### CONSTRUCTOR
+    
     def __init__(self, startServer, ySet):
         self.server = startServer
         self.y = ySet
-        self.getConfigItems()
-    
 
+        self.getConfigItems()
+
+
+
+
+
+
+
+    #### CONFIG AND GUARDS
+
+    ## Get Config
 
     def getConfigItems(self):
         self.homedir = config.getConfigItem('homedir')
         self.levelName = config.getLevelName(self.server)
         self.doChecks()
+
+
+
+    ## Guards
     
-
-
     def doChecks(self):
-
-        if not check.serverExists(self.server):
-            print('mcstart.py: Server not found. Exit (30).')
-            sys.exit(30)
-
-        if check.running(self.server):
-            print('mcstart.py: Server already running. Exit (33).')
-            sys.exit(33)
+        test.serverExists(self.server, 0, 'mcstart.py')
+        test.serverRunning(self.server, 1, 'mcstart.py')
 
         self.firstTime()
     
+    
+    
+    
+    
+    
+    
+    #### FIRST RUN, WORLD GENERATION
 
-
+    ## Detect if this is first run
+    
     def firstTime(self):
-        if config.getLinesInProperties(self.server) == '1':
+        if config.getLinesInProperties(self.server) <= '10':
             self.startServer()
         else:
             self.promptGenerate()
 
 
 
-    def promptGenerate(self):
-        if not check.worldExists(self.server, self.levelName):
-            response = input("Active world (" + self.levelName + ") doesn\'t exist. Generate new world? [y/n] ") # type: ignore
+    ## Prompt user to re-generate world if not first run
 
+    def promptGenerate(self):
+        if not test.worldExists(self.server, self.levelName):
+            response = input("Active world (" + self.levelName + ") doesn\'t exist. Generate new world? [y/n] ") # type: ignore
             response = response.lower()
 
             if response != 'y':
-                print('mcstart.py: User cancelled. Exit (19).')
+                if v.e: print('mcstart.py: User cancelled. Exit (19).')
                 sys.exit(19)
         
         self.startServer()
+
+
+
+
+
+
+
+    #### START THE SERVER
     
-
-
     def startServer(self):
-        print('Starting server...')
+        if v.o: print('Starting server...')
+
+
+        # Establish paths & cwd
 
         self.pathToRun = self.homedir + '/servers/' + self.server + '/run.sh'
         self.newDir = self.homedir + '/servers/' + self.server + '/'
-
         os.chdir(self.newDir)
 
+        # Run Screen
+
         self.result = subprocess.run(['screen', '-d', '-m', '-S', self.server, self.pathToRun, 'pleasedontdothis'], stdout=subprocess.PIPE)
-        self.result = self.result.stdout.decode('utf-8')
-        self.result = self.result.strip()
+
+        # Give 'er a second
 
         time.sleep(5)
 
-        ## follow log file
+        # Keep reading the log file until "done!"
+
         path = self.homedir + '/servers/' + self.server + '/logs/latest.log'
         file = open(path, 'r')
         
@@ -82,6 +112,7 @@ class Start:
         while True:
             new = file.readline()
 
+            # break if we found patten
             if new:
                 if "INFO]: Done (" in new:
                     break
@@ -89,8 +120,10 @@ class Start:
                 i = i+1
                 time.sleep(0.01)
             
+            # timeout reached (>= 30 seconds with forced 0.01 sleep)
             if i >= 3000:
-                print('mcstart.py: Startup failure. Log did not indicate "done!" before timeout. Exit (36).')
+                if v.o: print('Timeout reached! Use "gorp -t <server>" to see the latest log to investigate further.')
+                if v.e: print('mcstart.py: Startup failure. Log did not indicate "done!" before timeout. Exit (36).')
                 sys.exit(36)
         
-        print('Server started!')
+        if v.o: print('Server started!')

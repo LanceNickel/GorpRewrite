@@ -1,5 +1,5 @@
 import argparse
-from mcstart import Start
+import globalvars as v
 
 
 #### PARSE THE INPUT
@@ -57,10 +57,33 @@ except:
 
 
 
+#### SET VERBOSITY
+
+global e
+global o
+
+if args.q:
+    v.e = True
+    v.o = False
+
+elif args.Q:
+    v.e, v.o = False, False
+
+else:
+    v.e, v.o = True, True
+
+
+
+
+
+
+
 
 #### LAUNCH ACTIONS
 
 
 ## START
+from mcstart import Start
+
 if action == 'start':
     Start(arg1, args.y)
