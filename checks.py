@@ -4,7 +4,7 @@ import config
 
 
 
-homedir = config.homedir()
+homedir = config.getConfigItem('homedir')
 
 
 
