@@ -20,9 +20,9 @@ def get_config_item(key):
 
 
 
-def get_level_name(serverName):
+def get_level_name(server_name):
     homedir = get_config_item('homedir')
-    path = f'{homedir}/servers/{serverName}/server.properties'
+    path = f'{homedir}/servers/{server_name}/server.properties'
 
     try:
         with open(path) as f:
@@ -36,9 +36,9 @@ def get_level_name(serverName):
 
 
 
-def get_lines_in_properties(serverName):
+def get_lines_in_properties(server_name):
     homedir = get_config_item('homedir')
-    path = f'{homedir}/servers/{serverName}/server.properties'
+    path = f'{homedir}/servers/{server_name}/server.properties'
 
     cat = subprocess.Popen(('cat', path), stdout=subprocess.PIPE)
     wc = subprocess.run(('wc', '-l'), stdin=cat.stdout, stdout=subprocess.PIPE)

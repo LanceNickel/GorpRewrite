@@ -12,9 +12,9 @@ class Start:
 
     #### CONSTRUCTOR
     
-    def __init__(self, startServer, ySet):
-        self.server = startServer
-        self.y = ySet
+    def __init__(self, start_server, y_set):
+        self.server = start_server
+        self.y = y_set
 
         self.get_config_items()
 
@@ -30,7 +30,7 @@ class Start:
 
     def get_config_items(self):
         self.homedir = config.get_config_item('homedir')
-        self.levelName = config.get_level_name(self.server)
+        self.level_name = config.get_level_name(self.server)
         self.checks()
 
 
@@ -40,6 +40,7 @@ class Start:
     def checks(self):
         test.server_exists(self.server, 0, __name__)
         test.server_running(self.server, 1, __name__)
+        test.jar_exists(self.server, 0, __name__)
 
         self.check_first_time()
     
@@ -55,24 +56,24 @@ class Start:
     
     def check_first_time(self):
         if config.get_lines_in_properties(self.server) <= '10':
-            self.startServer()
+            self.start_server()
         else:
-            self.promptGenerate()
+            self.prompt_generate()
 
 
 
     ## Prompt user to re-generate world if not first run
 
-    def promptGenerate(self):
-        if not test.world_exists(self.server, self.levelName):
-            response = input(f"Active world ({self.levelName}) doesn't exist. Generate new world? [y/n] ") # type: ignore
+    def prompt_generate(self):
+        if not test.world_exists(self.server, self.level_name):
+            response = input(f"Active world ({self.level_name}) doesn't exist. Generate new world? [y/n] ") # type: ignore
             response = response.lower()
 
             if response != 'y':
                 if v.e: print('mcstart.py: User cancelled. Exit (19).')
                 sys.exit(19)
         
-        self.startServer()
+        self.start_server()
 
 
 
@@ -82,7 +83,7 @@ class Start:
 
     #### START THE SERVER
     
-    def startServer(self):
+    def start_server(self):
         if v.o: print('Starting server...')
 
 

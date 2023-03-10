@@ -69,7 +69,7 @@ def world_exists(server_name, world_name, guard_mode = 2, calling_name = __name_
             if v.e: print(f'{calling_name}.py: World already exists. Exit (41).')
             sys.exit(41)
     
-    ## If guard nt set, return boolean
+    ## If guard not set, return boolean
 
     else:
         return exists
@@ -120,6 +120,67 @@ def server_running(server_name, guard_mode = 2, calling_name = __name__):
 
 
 
+#### TEST SERVER'S SET JAR EXISTS
+
+def jar_exists(server_name, guard_mode = 2, calling_name = __name__):
+    # Get and create path to run.sh
+    
+    homedir = config.get_config_item('homedir')
+    path = f'{homedir}/servers/{server_name}/run.sh'
+
+    # Initialize vars
+
+    exists = False
+    path_to_jar = ''
+
+    # Look for the JAR file
+
+    try:
+        with open(path) as f:
+            for line in f:
+                if 'CUSTOM_JAR=' in line:
+                    if '# Default:' in line:
+                        pass
+                    else:
+                        path_to_jar = ' '.join(line.splitlines()).strip().replace('CUSTOM_JAR=', '')
+                
+    except FileNotFoundError:
+        if v.e: print(f'{calling_name}.py: Cannot check if JAR exists as server\'s run.sh file does not exist either.')
+    
+
+    # Check if specified JAR file exists
+
+    p = Path(path_to_jar)
+    exists = p.exists()
+
+    # If guard == 0, exit on False
+
+    if guard_mode == 0:
+        if not exists:
+            if v.e: print(f'{calling_name}.py: JAR file does not exist for server. Exit (63).')
+            sys.exit(63)
+
+    # If guard == 1, exit on True
+    
+    elif guard_mode == 1:
+        if exists:
+            if v.e: print(f'{calling_name}.py: JAR already exists. Exit (64).')
+            sys.exit(64)
+
+    # If guard not set, return boolean
+    
+    else:
+        return exists
+    
+
+
+
+
+
+
+
+
+
 #### SHA256 SUM OF FILE
 
 def sha256_sum_file(path):
@@ -134,5 +195,6 @@ def sha256_sum_file(path):
             for segment in iter(lambda: f.read(4096), b""):
                 hash.update(segment)
             return hash.hexdigest()
+        
     except FileNotFoundError:
         return 'dne'
