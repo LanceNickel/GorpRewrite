@@ -30,6 +30,8 @@ import config
 
 
 
+
+
 #### SERVER EXISTS
 
 def server_exists(server_name, guard_mode = 2, calling_name = __name__):
@@ -58,6 +60,8 @@ def server_exists(server_name, guard_mode = 2, calling_name = __name__):
 
     else:
         return exists
+
+
 
 
 
@@ -100,6 +104,8 @@ def world_exists(server_name, world_name, guard_mode = 2, calling_name = __name_
 
 
 
+
+
 #### SERVER RUNNING
 
 def server_running(server_name, guard_mode = 2, calling_name = __name__):
@@ -133,6 +139,8 @@ def server_running(server_name, guard_mode = 2, calling_name = __name__):
 
     else:
         return running
+
+
 
 
 
@@ -191,7 +199,6 @@ def jar_exists(server_name, guard_mode = 2, calling_name = __name__):
     
     else:
         return exists
-    
 
 
 

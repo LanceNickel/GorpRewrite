@@ -31,12 +31,24 @@ config.read('config.conf')
 
 
 
+
+
+
+
+
+
 def get_config_item(key):
     try:
         return config['CONFIG'][key]
     except:
         print('config.py: Configuration item not found. Exit (2).')
         sys.exit(2)
+
+
+
+
+
+
 
 
 
@@ -53,6 +65,12 @@ def get_level_name(server_name):
     except:
         pass
     
+
+
+
+
+
+
 
 
 

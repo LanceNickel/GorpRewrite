@@ -28,6 +28,12 @@ import test
 
 
 
+
+
+
+
+
+
 class Start:
 
     #### CONSTRUCTOR
@@ -37,6 +43,8 @@ class Start:
         self.y = y_set
 
         self.get_config_items()
+
+
 
 
 
@@ -68,6 +76,8 @@ class Start:
     
     
     
+
+
     
     
     #### FIRST RUN, WORLD GENERATION
@@ -94,6 +104,8 @@ class Start:
                 sys.exit(19)
         
         self.start_server()
+
+
 
 
 
