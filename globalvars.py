@@ -18,7 +18,9 @@ Gorp - Simple Minecraft CLI tools.
 
 
 
+global d
 global e
 global o
 
+d = False
 e, o = True, True

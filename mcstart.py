@@ -24,7 +24,7 @@ import subprocess
 import os
 import globalvars as v
 import config
-import test
+import functions
 
 
 
@@ -59,16 +59,16 @@ class Start:
     def get_config_items(self):
         self.homedir = config.get_config_item('homedir')
         self.level_name = config.get_level_name(self.server)
-        self.checks()
+        self.guards()
 
 
 
     ## Guards
     
-    def checks(self):
-        test.server_exists(self.server, 0, __name__)
-        test.server_running(self.server, 1, __name__)
-        test.jar_exists(self.server, 0, __name__)
+    def guards(self):
+        functions.server_exists(self.server, 0, __name__)
+        functions.server_running(self.server, 1, __name__)
+        functions.jar_exists(self.server, 0, __name__)
 
         self.check_first_time()
     
@@ -95,7 +95,7 @@ class Start:
     ## Prompt user to re-generate world if not first run
 
     def prompt_generate(self):
-        if not test.world_exists(self.server, self.level_name):
+        if not functions.world_exists(self.server, self.level_name):
             response = input(f"Active world ({self.level_name}) doesn't exist. Generate new world? [y/n] ") # type: ignore
             response = response.lower()
 
@@ -130,7 +130,7 @@ class Start:
 
         ## Get SHA256 of current log file
 
-        original_sum = test.sha256_sum_file(path_to_log)
+        original_sum = functions.sha256_sum_file(path_to_log)
 
         
         
@@ -142,11 +142,13 @@ class Start:
         
         ## Wait for new log file to be created
 
+        if v.d: print('Waiting for log file...')
+
         i=0
 
-        while original_sum == test.sha256_sum_file(path_to_log):
+        while original_sum == functions.sha256_sum_file(path_to_log):
             i = i+0.5
-            if (i >= 10): # 10 seconds at least
+            if i >= 10: # 10 seconds at least
                 if v.e: print('mcstart.py: Startup failure. Log was not created before timeout. Exit (36).')
                 sys.exit(36)
             
@@ -174,14 +176,17 @@ class Start:
 
             # break if we found patten
             if new:
+
+                if v.d: print(new.strip())
+
                 if "INFO]: Done (" in new:
                     break
             else:
                 i = i+1
-                time.sleep(0.01)
+                time.sleep(0.001)
             
-            # timeout reached (>= 30 seconds with forced 0.01 sleep)
-            if i >= 3000:
+            # timeout reached (>= 30 seconds with forced 0.001 sleep)
+            if i >= 30000:
                 if v.o: print('Timeout reached! Use "gorp -t <server>" to see the latest log to investigate further.')
                 if v.e: print('mcstart.py: Startup failure. Log did not indicate "done!" before timeout. Exit (36).')
                 sys.exit(36)

@@ -34,6 +34,7 @@ try:
     parser.add_argument('action', help='task to perform', nargs='*', default='none')
 
     ## CREATEION ACTION SHORTS
+    parser.add_argument('-D', help='show debug output, such as server logs; works on all actions', action='store_true')
     parser.add_argument('-q', help='no output except for errors; works on all actions', action='store_true')
     parser.add_argument('-Q', help='no output except strictly necessary; works on all actions', action='store_true')
     parser.add_argument('-s', help='get a server\'s status', dest='server')
@@ -82,9 +83,8 @@ try:
 
     #### SET VERBOSITY
 
-    global e
-    global o
-
+    ## Quiet/Silent
+    
     if args.q:
         v.e = True
         v.o = False
@@ -94,6 +94,16 @@ try:
 
     else:
         v.e, v.o = True, True
+    
+
+
+    ## Debug
+
+    if args.D:
+        v.d = True
+    else:
+        v.d = False
+    
 
 
 
@@ -106,10 +116,26 @@ try:
 
 
     ## START
-    from mcstart import Start
 
     if action == 'start':
+        from mcstart import Start
         Start(arg1, args.y)
+    
+
+
+    ## STOP
+
+    if action == 'stop':
+        if args.f:
+            speed = 'f'
+        elif args.n:
+            speed = 'n'
+        else:
+            speed = '0'
+        
+        from mcstop import Stop
+        Stop(arg1, speed)
+
 
 
 
