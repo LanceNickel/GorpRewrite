@@ -236,19 +236,31 @@ def sha256_sum_file(path):
 #### SEND WARNING IN GAMECHAT
 
 def warn(server_name, action, sleep_time):
+    if v.o: print(f'Giving {sleep_time} seconds warning...')
     
+
+
+    ## Send warning
+
+    # Stop
     if action == 'stop':
-        if v.o: print(f'Giving {sleep_time} seconds warning...')
-
-        ## Send warning
-
         subprocess.run(['screen', '-S', server_name, '-X', 'stuff', 'say This server will shut down in 30 seconds.\n'])
+    
+    # Restart
+    if action == 'restart':
+        subprocess.run(['screen', '-S', server_name, '-X', 'stuff', 'say This server will restart in 30 seconds.\n'])
 
-        ## Wait 30 seconds
+    # Power
+    if action == 'power':
+        subprocess.run(['screen', '-S', server_name, '-X', 'stuff', 'say Due to a power outage, this server will shut down in 30 seconds.\n'])
 
-        i=0
 
-        while i <= sleep_time:
-            time.sleep(1)
-            i = i+1
-            sys.stdout.write(f'\033[K  {i} s\r')
+
+    ## Wait 30 seconds
+
+    i=0
+
+    while i <= sleep_time:
+        time.sleep(1)
+        i = i+1
+        sys.stdout.write(f'\033[K  {i} s\r')

@@ -88,7 +88,7 @@ class Stop:
         
         else:
             # Backup(self.server)
-            functions.warn(self.server, 'stop', 5)
+            functions.warn(self.server, 'stop', 30)
             self.stop_server()
 
 

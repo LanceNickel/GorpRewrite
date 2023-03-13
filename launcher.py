@@ -138,6 +138,20 @@ try:
 
 
 
+    ## STOP
+
+    if action == 'restart':
+        if args.f:
+            speed = 'f'
+        elif args.n:
+            speed = 'n'
+        else:
+            speed = '0'
+        
+        from mcrestart import Restart
+        Restart(arg1, speed)
+
+
 
 except KeyboardInterrupt:
     print('User cancelled. Exit (19).')
